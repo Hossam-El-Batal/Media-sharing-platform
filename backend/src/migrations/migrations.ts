@@ -32,7 +32,7 @@ const createTables = async () => {
             CREATE TABLE IF NOT EXISTS posts (
                 post_id SERIAL PRIMARY KEY,
                 user_id INTEGER NOT NULL,
-                content TEXT NOT NULL,
+                content TEXT,
                 type VARCHAR(10) NOT NULL,
                 url VARCHAR(255) NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
