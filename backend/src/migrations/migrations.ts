@@ -14,7 +14,9 @@ const createTables = async () => {
                 password VARCHAR(255) NOT NULL,
                 profile_pic VARCHAR(255),
                 bio TEXT,
+                refreshToken VARCHAR(255),
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
             )
         `);
         

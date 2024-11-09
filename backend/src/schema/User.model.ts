@@ -4,7 +4,8 @@ interface User {
     email:String,
     password:String,
     profile_pic:String,
-    bio: String
+    bio: String,
+    refreshToken: String
 }
 
 export default User
