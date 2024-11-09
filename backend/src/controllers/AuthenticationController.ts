@@ -40,6 +40,7 @@ const cookieOptions: CookieOptions = {
     maxAge: 5 * 60 * 1000, 
     sameSite: "none" as const, 
     secure: false,
+    httpOnly:true
 };
 
 //login logic 
@@ -89,6 +90,119 @@ const login = async (req:Request,res:Response,next:NextFunction): Promise<any> =
     }   
 }
 
+interface JwtPayload {
+    id: string;
+}
+
+interface CustomRequest extends Request {
+    id?: string;
+}
+// token validation 
+const validateToken = (req: CustomRequest, res: Response, next: NextFunction) => {
+    const token = req.cookies.token;
+
+    if (!token) {
+        return res.status(401).json({ message: "No token found" });
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload;
+        req.id = decoded.id;
+        next();
+    } catch (error) {
+        console.error("Token validation error:", error);
+        return res.status(401).json({ message: "Invalid token" });
+    }
+};
+
+// verify then refresh token
+
+const refreshToken = async (req: Request, res: Response): Promise<any> => {
+    try {
+        const refreshToken = req.cookies.refreshToken;
+        
+        if (!refreshToken) {
+            return res.status(401).json({ message: "No refresh token" });
+        }
+
+        // verify refresh token and explicitly type the decoded payload
+        const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET as string) as JwtPayload;
+        
+        // check if refresh token exists in database
+        const result = await pool.query(
+            'SELECT * FROM users WHERE id = $1 AND refreshtoken = $2',
+            [decoded.id, refreshToken]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(401).json({ message: "Invalid refresh token" });
+        }
+
+        // generate new access token
+        const newToken = jwt.sign(
+            { id: decoded.id },
+            process.env.JWT_SECRET as string,
+            { expiresIn: '5m' }
+        );
+
+        // update cookies
+        res.cookie("token", newToken, cookieOptions);
+        res.cookie("tokenExists", true, cookieOptions);
+
+        return res.status(200).json({ token: newToken });
+    } catch (error) {
+        console.error("Refresh token  error:", error);
+        return res.status(401).json({ message: "Invalid refresh token" });
+    }
+};
+
+// return user data
+const getUserData = async (req: CustomRequest, res: Response): Promise<any> => {
+    try {
+        const userId = req.id;
+        
+        const result = await pool.query(
+            'SELECT id, username, email, profile_pic, bio FROM users WHERE id = $1',
+            [userId]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        return res.status(200).json({ user: result.rows[0] });
+    } catch (error) {
+        console.error("Get user data error:", error);
+        return res.status(500).json({ message: "Error fetching user data" });
+    }
+};
+
+//logout logic
+
+const logout = async (req: CustomRequest, res: Response): Promise<any> => {
+    try {
+        const userId = req.id;
+        
+        // clear refresh token in database
+        await pool.query(
+            'UPDATE users SET refreshtoken = NULL WHERE id = $1',
+            [userId]
+        );
+
+        // clear cookiess
+        res.clearCookie("token", cookieOptions);
+        res.clearCookie("tokenExists", cookieOptions);
+        res.clearCookie("refreshToken", cookieOptions);
+        return res.status(200).json({ message: "Logged out successfully" });
+    } catch (error) {
+        console.error("Logout error:", error);
+        return res.status(500).json({ message: "Error during logout" });
+    }
+};
+
+
+
+
 module.exports = {
-    register,login
+    register,login,getUserData,logout,validateToken,refreshToken
 }
