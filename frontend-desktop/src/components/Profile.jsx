@@ -3,7 +3,7 @@ import axios from "axios";
 import "../styles/Profile.css";
 import uploadimage from "../assets/icons8-plus-50.png";
 import Masonry from "react-masonry-css";
-
+import Modal from "./Modal";
 
 const Profile = () => {
   const [image, setImage] = useState(null); 
@@ -13,6 +13,8 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
+  const [selectedPost, setSelectedPost] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // see logged requests 
   useEffect(() => {
@@ -107,6 +109,16 @@ const Profile = () => {
     fileInputRef.current.click();
   };
 
+  const handlePostClick = (post) => {
+    setSelectedPost(post);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedPost(null);
+  };
+
   return (
     <div className="container">
       <div className="profile-sub-1">
@@ -150,7 +162,7 @@ const Profile = () => {
           columnClassName="masonry-column"
         >
           {posts.map((post, index) => (
-            <div key={index} className="masonry-item">
+            <div key={index} className="masonry-item" onClick={() => handlePostClick(post)}>
               {post.type === "photo" ? (
                 <img src={post.url} alt={`Post ${index}`} className="post-media" />
               ) : (
@@ -162,6 +174,11 @@ const Profile = () => {
           ))}
         </Masonry>
       </div>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        post={selectedPost}
+      />
     </div>
   );
 };

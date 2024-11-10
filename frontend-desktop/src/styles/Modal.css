@@ -1,0 +1,71 @@
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.75); 
+  }
+  
+ 
+  .modal-content {
+    position: relative;
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    max-width: 1024px; 
+    width: 100%;
+    margin: 0 1rem;
+  }
+  
+ 
+  .close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    color: #6b7280; 
+  }
+  
+  .close-btn:hover {
+    color: #4b5563; 
+  }
+  
+ 
+  .media-container {
+    padding: 1rem;
+  }
+  
+  .media-container img,
+  .media-container video {
+    width: 100%;
+    height: auto;
+    max-height: 70vh;
+    object-fit: contain;
+  }
+  
+
+  .like-section {
+    padding: 1rem;
+    border-top: 1px solid #e5e7eb;
+  }
+  
+  .like-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .like-btn:disabled {
+    opacity: 0.6; 
+  }
+  
+  .like-btn .liked {
+    fill: #ef4444; 
+    color: #ef4444;
+  }
+  
+  .like-btn .unliked {
+    color: #6b7280; 
+  }
+  
