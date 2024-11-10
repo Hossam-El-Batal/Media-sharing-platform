@@ -189,5 +189,30 @@ const getAllPosts = async (req: Request, res: Response) => {
         return res.status(500).json({ message: 'Error fetching posts' });
     }
 };
+//end point to delete posts 
+const deletePost = async (req: CustomRequest, res: Response) => {
+    const { postId } = req.params;
+    const userId = req.id;
 
-module.exports = {uploadMedia,upload,getUserPosts,getAllPosts}
+    try {
+        const post = await pool.query(
+            'SELECT * FROM posts WHERE post_id = $1 AND user_id = $2',
+            [postId, userId]
+        );
+
+        if (post.rows.length === 0) {
+            return res.status(404).json({ message: 'Post not found or unauthorized' });
+        }
+
+        await pool.query(
+            'DELETE FROM posts WHERE post_id = $1',
+            [postId]
+        );
+
+        return res.status(200).json({ message: 'Post deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting post:', error);
+        return res.status(500).json({ message: 'Error deleting post' });
+    }
+};
+module.exports = {uploadMedia,upload,getUserPosts,getAllPosts,deletePost}
