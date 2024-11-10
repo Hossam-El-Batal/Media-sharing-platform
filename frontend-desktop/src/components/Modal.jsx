@@ -33,7 +33,7 @@ const Modal = ({ isOpen, onClose, post }) => {
     if (isLoading) return;
 
     setIsLoading(true);
-    // Optimistic update
+    // Optimistic update to mimic smoother UX
     const previousLikeCount = likeCount;
     const previousUserLiked = userLiked;
     
@@ -47,7 +47,7 @@ const Modal = ({ isOpen, onClose, post }) => {
         { withCredentials: true }
       );
       
-      // Update with actual server response
+      // Update with actual server response ( the actual total of likes)
       setLikeCount(response.data.likeCount);
       setUserLiked(response.data.liked);
     } catch (error) {
@@ -62,9 +62,14 @@ const Modal = ({ isOpen, onClose, post }) => {
 
   if (!isOpen || !post) return null;
 
+  const handleCloseClick = (e) => {
+    e.stopPropagation();
+    onClose();
+  };
+
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
+    <div className="modal-overlay" onClick={handleCloseClick}>
+      <div className="modal-content" onClick={e => e.stopPropagation()}>
         {/* Close button */}
         <button
           onClick={onClose}
