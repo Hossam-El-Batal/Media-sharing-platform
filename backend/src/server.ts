@@ -14,19 +14,20 @@ app.use(cookieParser());
 
 //import routes 
 import authRoutes from "./routes/AuthRoute";
+import mediaRoutes from "./routes/MediaRoute"
 
 app.use(
     cors({
-      origin: [
+    origin: [
         "http://localhost:5173", 
-      ],
-      methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-      credentials: true, // allow cookies or authentication headers
+    ],
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    credentials: true, // allow cookies or authentication headers
     })
-  );
+);
 
-  app.use("/api", authRoutes);
-
+app.use("/api", authRoutes);
+app.use("/api",mediaRoutes)
 
 
 // start server 

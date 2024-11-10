@@ -3,6 +3,18 @@ import pool from '../utils/db_connect';
 import multer from 'multer';
 import { createClient } from '@supabase/supabase-js';
 
+
+declare global {
+    namespace Express {
+      interface Request {
+        file?: Express.Multer.File;
+      }
+    }
+  }
+  interface CustomRequest extends Request {
+    id?: string;
+}
+
 //handling media CRUD
 // create a supbase client
 const supabase = createClient(
@@ -31,5 +43,99 @@ const generateFileName = (originalname: string): string => {
     const extension = originalname.split('.').pop();
     return `${timestamp}-${randomString}.${extension}`;
 };
+
 // upload a video/photo 
 
+const uploadMedia = async (req: CustomRequest, res: Response) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: 'No file uploaded' });
+        }
+
+        const userId = req.id;
+        if (!userId) {
+            return res.status(401).json({ message: 'User not authenticated' });
+        }
+
+        const file = req.file;
+        const fileName = generateFileName(file.originalname);
+        const fileType = file.mimetype.startsWith('image/') ? 'photo' : 'video';
+        const filePath = `${fileType}s/${fileName}`; // organize files
+
+        // upload to supbase
+        const { data: uploadData, error: uploadError } = await supabase
+            .storage
+            .from('Bucket')
+            .upload(filePath, file.buffer, {
+                contentType: file.mimetype,
+                cacheControl: '3600'
+            });
+
+        if (uploadError) {
+            throw new Error(uploadError.message);   
+        }
+
+        // get public url
+        const { data: { publicUrl } } = supabase
+            .storage
+            .from('Bucket')   
+            .getPublicUrl(filePath);
+
+       //create post
+        const { data: post, error: dbError } = await supabase
+            .from('posts')
+            .insert({
+                user_id: userId,
+                content: req.body.content,
+                type: fileType,
+                url: publicUrl
+            })
+            .select()
+            .single();
+
+        if (dbError) {
+            throw new Error(dbError.message);
+        }
+
+        return res.status(201).json({
+            message: 'Uploaded successfully',
+            post,
+            url: publicUrl
+        });
+    } catch (error) {
+        console.error('Upload error:', error);
+        return res.status(500).json({ message: 'Error uploading file' });
+    }
+};
+
+const getUserPosts = async (req: CustomRequest, res: Response) => {
+    try {
+        const userId = req.id;
+
+        if (!userId) {
+            return res.status(401).json({ message: 'User not authenticated' });
+        }
+
+        const { data: posts, error } = await supabase
+            .from('posts')
+            .select('*')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            throw new Error(error.message);
+        }
+
+        return res.status(200).json({
+            posts: posts || [],
+            metadata: {
+                total: posts?.length || 0
+            }
+        });
+    } catch (error) {
+        console.error('Error fetching posts:', error);
+        return res.status(500).json({ message: 'Error fetching posts' });
+    }
+};
+
+module.exports = {uploadMedia,upload,getUserPosts}
