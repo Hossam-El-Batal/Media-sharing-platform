@@ -203,6 +203,7 @@ const deletePost = async (req: CustomRequest, res: Response) => {
         if (post.rows.length === 0) {
             return res.status(404).json({ message: 'Post not found or unauthorized' });
         }
+        console.log(`post found: ${JSON.stringify(post.rows[0])}`);
 
         await pool.query(
             'DELETE FROM posts WHERE post_id = $1',
