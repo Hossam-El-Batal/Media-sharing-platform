@@ -80,6 +80,7 @@ const createTables = async () => {
                 UNIQUE(user_id, post_id)
             )
         `);
+        
 
         // Disable RLS for the `likes` table
         await client.query(`

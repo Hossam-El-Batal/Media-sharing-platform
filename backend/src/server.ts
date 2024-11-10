@@ -15,6 +15,7 @@ app.use(cookieParser());
 //import routes 
 import authRoutes from "./routes/AuthRoute";
 import mediaRoutes from "./routes/MediaRoute"
+const likesRoutes = require('./routes/LikesRoute');
 
 app.use(
     cors({
@@ -28,6 +29,9 @@ app.use(
 
 app.use("/api", authRoutes);
 app.use("/api",mediaRoutes)
+app.use('/api', likesRoutes);
+
+
 
 
 // start server 
