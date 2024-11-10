@@ -151,4 +151,43 @@ const getUserPosts = async (req: CustomRequest, res: Response) => {
     }
 };
 
+// add endpoint to get all posts
+const getAllPosts = async (req: Request, res: Response) => {
+    try {
+        const { data: posts, error } = await supabase
+            .from('posts')
+            .select(`
+                post_id,
+                content,
+                type,
+                url,
+                created_at,
+                user_id,
+                users:user_id (
+                    username
+                )
+            `)
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            throw new Error(error.message);
+        }
+        const transformedPosts = posts?.map(post => ({
+            ...post,
+            username: post.users.username,
+            users: undefined
+        }));
+
+        return res.status(200).json({
+            posts: transformedPosts || [],
+            metadata: {
+                total: posts?.length || 0
+            }
+        });
+    } catch (error) {
+        console.error('Error fetching all posts:', error);
+        return res.status(500).json({ message: 'Error fetching posts' });
+    }
+};
+
 module.exports = {uploadMedia,upload,getUserPosts}
