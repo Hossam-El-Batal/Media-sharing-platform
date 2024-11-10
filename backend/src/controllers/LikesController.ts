@@ -36,13 +36,13 @@ const toggleLike = async (req: CustomRequest, res: Response) => {
 
         
         await pool.query(
-            'SELECT id FROM posts WHERE id = $1 FOR UPDATE',
+            'SELECT post_id FROM posts WHERE post_id = $1 FOR UPDATE',
             [postId]
         );
 
         // check if we liked post before
         const existingLike = await pool.query(
-            'SELECT id FROM likes WHERE post_id = $1 AND user_id = $2',
+            'SELECT like_id FROM likes WHERE post_id = $1 AND user_id = $2',
             [postId, userId]
         );
 
@@ -50,13 +50,13 @@ const toggleLike = async (req: CustomRequest, res: Response) => {
         if (existingLike.rows.length > 0) {
             // unlike if u already liked a post
             result = await pool.query(
-                'DELETE FROM likes WHERE post_id = $1 AND user_id = $2 RETURNING id',
+                'DELETE FROM likes WHERE post_id = $1 AND user_id = $2 RETURNING like_id',
                 [postId, userId]
             );
         } else {
             // add like
             result = await pool.query(
-                'INSERT INTO likes (post_id, user_id) VALUES ($1, $2) RETURNING id',
+                'INSERT INTO likes (post_id, user_id) VALUES ($1, $2) RETURNING like_id',
                 [postId, userId]
             );
         }
