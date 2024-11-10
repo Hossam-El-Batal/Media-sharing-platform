@@ -38,7 +38,7 @@ const register = async (req: Request, res: Response, next: NextFunction): Promis
 const cookieOptions: CookieOptions = {
     path: "/",
     maxAge: 5 * 60 * 1000, 
-    sameSite: "none" as const, 
+    sameSite: "lax" as const, 
     secure: false,
     httpOnly:true
 };

@@ -16,7 +16,6 @@ const createTables = async () => {
                 bio TEXT,
                 refreshToken VARCHAR(255),
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-
             )
         `);
         
@@ -26,6 +25,11 @@ const createTables = async () => {
             ADD CONSTRAINT unique_email UNIQUE (email)
         `);
         console.log('Users table created successfully');
+
+        // Disable RLS for the `users` table
+        await client.query(`
+            ALTER TABLE users DISABLE ROW LEVEL SECURITY;
+        `);
 
         console.log('Creating posts table');
         await client.query(`
@@ -38,6 +42,24 @@ const createTables = async () => {
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             )
+        `);
+        // increase the length of the URL after including the token
+        await client.query(`
+            ALTER TABLE posts
+            ALTER COLUMN url TYPE VARCHAR(1024);
+        `);
+
+        // Disable RLS for the `posts` table if needed
+        await client.query(`
+            ALTER TABLE posts DISABLE ROW LEVEL SECURITY;
+        `);
+
+        // Create policies (if RLS is disabled above, policies are not necessary)
+        await client.query(`
+            CREATE POLICY "Enable insert access for authenticated users" ON posts
+            FOR INSERT WITH CHECK (true);
+            CREATE POLICY "Enable select access for authenticated users" ON posts
+            FOR SELECT USING (true);
         `);
 
         await client.query(`
@@ -58,11 +80,16 @@ const createTables = async () => {
                 UNIQUE(user_id, post_id)
             )
         `);
+
+        // Disable RLS for the `likes` table
+        await client.query(`
+            ALTER TABLE likes DISABLE ROW LEVEL SECURITY;
+        `);
+        
         console.log('Likes table created successfully');
 
         await client.query('COMMIT');
         console.log('All tables created successfully');
-
     } catch (error) {
         await client.query('ROLLBACK');
         console.error('Error creating tables:', error);
@@ -71,6 +98,7 @@ const createTables = async () => {
         client.release();
     }
 };
+
 
 const dropTables = async () => {
     const client = await pool.connect();

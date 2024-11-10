@@ -19,7 +19,13 @@ declare global {
 // create a supbase client
 const supabase = createClient(
     process.env.SUPABASE_URL as string,
-    process.env.SUPABASE_ANON_KEY as string
+    process.env.SUPABASE_ANON_KEY as string,
+    {
+        auth: {
+            autoRefreshToken: true,
+            persistSession: true
+        }
+    }
 );
 // handling file uploads with multer 
 const storage = multer.memoryStorage();
@@ -51,6 +57,7 @@ const uploadMedia = async (req: CustomRequest, res: Response) => {
         if (!req.file) {
             return res.status(400).json({ message: 'No file uploaded' });
         }
+        console.log('Current user ID:', req.id);
 
         const userId = req.id;
         if (!userId) {
@@ -61,26 +68,32 @@ const uploadMedia = async (req: CustomRequest, res: Response) => {
         const fileName = generateFileName(file.originalname);
         const fileType = file.mimetype.startsWith('image/') ? 'photo' : 'video';
         const filePath = `${fileType}s/${fileName}`; // organize files
-
+        
         // upload to supbase
         const { data: uploadData, error: uploadError } = await supabase
             .storage
             .from('Bucket')
             .upload(filePath, file.buffer, {
                 contentType: file.mimetype,
-                cacheControl: '3600'
+                cacheControl: '3600',
+                upsert: false
             });
 
         if (uploadError) {
             throw new Error(uploadError.message);   
         }
-
+        
         // get public url
-        const { data: { publicUrl } } = supabase
+        const { data, error: urlError } = await supabase
             .storage
             .from('Bucket')   
-            .getPublicUrl(filePath);
+            .createSignedUrl(filePath, 60 * 60);
+        
+        const signedUrl = data?.signedUrl; 
 
+        if (!signedUrl) {
+            throw new Error("Failed to generate signed URL");
+        }
        //create post
         const { data: post, error: dbError } = await supabase
             .from('posts')
@@ -88,7 +101,7 @@ const uploadMedia = async (req: CustomRequest, res: Response) => {
                 user_id: userId,
                 content: req.body.content,
                 type: fileType,
-                url: publicUrl
+                url: signedUrl
             })
             .select()
             .single();
@@ -100,7 +113,7 @@ const uploadMedia = async (req: CustomRequest, res: Response) => {
         return res.status(201).json({
             message: 'Uploaded successfully',
             post,
-            url: publicUrl
+            url: signedUrl
         });
     } catch (error) {
         console.error('Upload error:', error);
