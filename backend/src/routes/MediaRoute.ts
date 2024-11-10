@@ -2,8 +2,10 @@ const {uploadMedia,upload,getUserPosts} = require("../controllers/MediaControlle
 import express, { Response } from 'express';
 import { Request } from 'express';
 const router = express.Router();
+const { validateToken } = require("../controllers/AuthenticationController");
 
-router.post('/upload', upload.single('file'), uploadMedia);
-router.get('/user-posts/:userId', getUserPosts);
+
+router.post('/upload', validateToken, upload.single('file'), uploadMedia);
+router.get('/user-posts', validateToken, getUserPosts); 
 
 export default router
