@@ -4,6 +4,7 @@ import Masonry from 'react-masonry-css';
 import Modal from './Modal';
 import { formatDistanceToNow } from 'date-fns';
 import '../styles/Main.css';
+import { Link } from 'react-router-dom';
 
 const Main = () => {
   const [posts, setPosts] = useState([]);
@@ -103,6 +104,7 @@ const Main = () => {
         onClose={handleCloseModal}
         post={selectedPost}
       />
+      <Link to="/profile" className="profile-link">Go to Profile</Link>
     </div>
   );
 };

@@ -4,6 +4,7 @@ import "../styles/Profile.css";
 import uploadimage from "../assets/icons8-plus-50.png";
 import Masonry from "react-masonry-css";
 import Modal from "./Modal";
+import { Link } from 'react-router-dom';
 
 const Profile = () => {
   const [image, setImage] = useState(null); 
@@ -110,13 +111,17 @@ const Profile = () => {
   };
 
   const handlePostClick = (post) => {
-    setSelectedPost(post);
+    setSelectedPost({ ...post, isProfile: true });
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedPost(null);
+  };
+
+  const handleDeletePost = (postId) => {
+    setPosts(prevPosts => prevPosts.filter(post => post.post_id !== postId));
   };
 
   return (
@@ -178,7 +183,9 @@ const Profile = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         post={selectedPost}
+        onDelete={handleDeletePost}
       />
+      <Link to="/" className="profile-link">Go to Profile</Link>
     </div>
   );
 };

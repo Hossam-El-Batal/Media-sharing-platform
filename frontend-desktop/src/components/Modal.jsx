@@ -5,7 +5,7 @@ import axios from 'axios';
 import { Heart } from 'lucide-react';
 import '../styles/Modal.css';
 
-const Modal = ({ isOpen, onClose, post }) => {
+const Modal = ({ isOpen, onClose, post, onDelete }) => {
   const [likeCount, setLikeCount] = useState(0);
   const [userLiked, setUserLiked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -60,6 +60,18 @@ const Modal = ({ isOpen, onClose, post }) => {
     }
   };
 
+  const handleDeleteClick = async () => {
+    try {
+      await axios.delete(`http://localhost:3000/api/posts/${post.post_id}`, {
+        withCredentials: true
+      });
+      onDelete(post.post_id);
+      onClose();
+    } catch (error) {
+      console.error('Error deleting post:', error);
+    }
+  };
+
   if (!isOpen || !post) return null;
 
   const handleCloseClick = (e) => {
@@ -106,6 +118,15 @@ const Modal = ({ isOpen, onClose, post }) => {
             />
             <span>{likeCount} likes</span>
           </button>
+
+          {post.isProfile && (
+            <button
+              onClick={handleDeleteClick}
+              className="remove-btn"
+            >
+              Remove
+            </button>
+          )}
         </div>
       </div>
     </div>
