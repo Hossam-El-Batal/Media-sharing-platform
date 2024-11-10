@@ -27,7 +27,7 @@ function Login() {
       setEmail('');
       setPassword('');
       await new Promise(resolve => setTimeout(resolve, 100));
-      navigate('/profile');
+      navigate('/Main');
     } catch (error) {   
       console.error('Error during login:', error.response || error.message);
       setErrorMessage('Login failed. Please check your credentials');

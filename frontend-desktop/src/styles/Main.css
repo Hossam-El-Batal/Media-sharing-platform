@@ -1,0 +1,22 @@
+.username {
+    font-weight: bold;
+    margin-right: 8px;
+  }
+  
+  .post-date {
+    font-size: 0.9em;
+    opacity: 0.8;
+  }
+  
+  .loading {
+    text-align: center;
+    padding: 40px;
+    font-size: 1.2em;
+  }
+  
+  .error {
+    text-align: center;
+    padding: 40px;
+    color: #dc2626;
+    font-size: 1.2em;
+  }
