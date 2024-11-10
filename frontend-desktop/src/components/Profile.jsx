@@ -185,7 +185,7 @@ const Profile = () => {
         post={selectedPost}
         onDelete={handleDeletePost}
       />
-      <Link to="/" className="profile-link">Go to Profile</Link>
+      <Link to="/" className="profile-link">Go to Main</Link>
     </div>
   );
 };
