@@ -200,9 +200,26 @@ const logout = async (req: CustomRequest, res: Response): Promise<any> => {
     }
 };
 
+const checkAuthentication = (req: CustomRequest, res: Response) => {
+    const token = req.cookies.token;
 
+    if (!token) {
+        console.log("No token found");
+        return res.status(401).json({ authenticated: false });
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload;
+        req.id = decoded.id;
+        console.log("token  valid");
+        return res.status(200).json({ authenticated: true });
+    } catch (error) {
+        console.error("Token validation error:", error);
+        return res.status(401).json({ authenticated: false });
+    }
+};
 
 
 module.exports = {
-    register,login,getUserData,logout,validateToken,refreshToken
+    register,login,getUserData,logout,validateToken,refreshToken, checkAuthentication
 }

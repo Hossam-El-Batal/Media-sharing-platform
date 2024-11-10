@@ -174,7 +174,7 @@ const getAllPosts = async (req: Request, res: Response) => {
         }
         const transformedPosts = posts?.map(post => ({
             ...post,
-            username: post.users.username,
+            username: post.users[0]?.username,
             users: undefined
         }));
 
@@ -190,4 +190,4 @@ const getAllPosts = async (req: Request, res: Response) => {
     }
 };
 
-module.exports = {uploadMedia,upload,getUserPosts}
+module.exports = {uploadMedia,upload,getUserPosts,getAllPosts}
