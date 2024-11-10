@@ -1,13 +1,13 @@
 import { React, useState } from 'react';
 import axios from 'axios';
-
+import { useNavigate } from 'react-router-dom';
 
 
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -20,12 +20,14 @@ function Login() {
             withCredentials: true, 
             }
         );
-
+      
       console.log('Login successful:', response.data);
       alert('Login successful!'); 
 
       setEmail('');
       setPassword('');
+      await new Promise(resolve => setTimeout(resolve, 100));
+      navigate('/profile');
     } catch (error) {   
       console.error('Error during login:', error.response || error.message);
       setErrorMessage('Login failed. Please check your credentials');
