@@ -29,6 +29,10 @@ https://github.com/user-attachments/assets/a6a38ff1-6c99-4ec7-84db-7b9ada02ff97
 
 https://github.com/user-attachments/assets/df12eee0-69c1-4610-82b4-c1fcade3f9b7
 
+-**Masonry Layout**: 
+<img width="842" alt="layout" src="https://github.com/user-attachments/assets/a48bb0df-4e9b-49db-8441-51fa500ada72">
+
+
 ## **Incomplete**
 - **Tried to make a mobile version with react-native-expo but i had no prior experience with it so i only reached to make the base structure with the time i had as i started the assignment late**:
 
