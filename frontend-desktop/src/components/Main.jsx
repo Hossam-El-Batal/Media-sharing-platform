@@ -67,6 +67,9 @@ const Main = () => {
   return (
     <div className="main-container">
       <div className="posts-grid">
+        <div>
+          <h1>Main page to show all posts</h1>
+        </div>
         <Masonry
           breakpointCols={{
             default: 4,
